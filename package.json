@@ -1,0 +1,35 @@
+{
+  "name": "ethers-wallet-connector",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "src/index.js",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syamsoul/ethers-wallet-connector.git"
+  },
+  "keywords": ["ethers", "web3", "blockchain","wallet", "connector"],
+  "dependencies": {
+    "ethers": "^6.14.0",
+    "@metamask/detect-provider": "^2.0.0"
+  },
+  "devDependencies": {
+    "rollup": "^3.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-json": "^6.1.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "author": "Syamsoul Azrien <syamsoulazrien88@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/syamsoul/ethers-wallet-connector/issues"
+  },
+  "homepage": "https://github.com/syamsoul/ethers-wallet-connector#readme",
+  "description": ""
+}
