@@ -19319,7 +19319,7 @@ class EthersWalletConnector extends EventEmitter
   async init(shouldNetworkData, shouldWalletAddress = null, execBeforeReconnect = null, autoConnect = true)
   {
     if (this.#isInitalized) {
-      this.#error("GGooseEthereum is already initialized.");
+      this.#error("EthersWalletConnector is already initialized.");
     }
 
     this.#shouldNetworkData = shouldNetworkData;
@@ -19345,9 +19345,9 @@ class EthersWalletConnector extends EventEmitter
       });
 
       this.#isInitalized = true;
-      this.emit('ggooseEthereumInitialized');
+      this.emit('walletConnectorInitialized');
     } else {
-      this.emit('metamaskNotFound');
+      this.emit('browserProviderNotFound');
       this.#error("You should install MetaMask.");
     }
   }
@@ -19574,7 +19574,7 @@ class EthersWalletConnector extends EventEmitter
   #checkShouldNetworkDataIsCorrect()
   {
     if (this.#shouldNetworkData === undefined || this.#shouldNetworkData === null) {
-      this.#error("You should initialize GGooseEthereum with chainData in first parameter.");
+      this.#error("You should initialize EthersWalletConnector with chainData in first parameter.");
     }
 
     const requiredOptions = ['chain_id', 'chain_name', 'currency_name', 'currency_symbol', 'rpc_url'];
@@ -19586,7 +19586,7 @@ class EthersWalletConnector extends EventEmitter
 
   #error(message)
   {
-    throw `ERROR - GGooseEthereum: ${message}`;
+    throw `ERROR - EthersWalletConnector: ${message}`;
   }
 }
 
