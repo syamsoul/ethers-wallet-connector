@@ -23,6 +23,7 @@ A powerful and flexible wallet connection library for Ethereum-based application
   * [Wallet Address Validation](#wallet-address-validation)
   * [Reconnect Callback](#reconnection-confirmation-callback)
   * [Auto Connect](#automatic-connection-on-initialization)
+  * [Manual Connect](#manual-wallet-connection)
 * [Events](#events)
 * [Contract Interactions](#contract-interactions)
   * [Call (Read)](#reading-contract-data-call)
