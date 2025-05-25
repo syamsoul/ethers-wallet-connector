@@ -19297,6 +19297,7 @@ var detectEthereumProvider = /*@__PURE__*/getDefaultExportFromCjs(distExports);
 
 class EthersWalletConnector extends EventEmitter
 {
+  #isSetup = false;
   #shouldNetworkData;
   #shouldWalletAddress;
   #isInitalized = false;
@@ -19316,15 +19317,29 @@ class EthersWalletConnector extends EventEmitter
   isCorrectNetwork = () => this.#currentChainId === (this.#shouldNetworkData?.chain_id ?? 0);
   isWalletConnected = () => !(this.#account === null || this.#account === undefined);
 
-  async init(shouldNetworkData, shouldWalletAddress = null, execBeforeReconnect = null, autoConnect = true)
+  setup(shouldNetworkData, shouldWalletAddress = null, execBeforeReconnect = null)
   {
-    if (this.#isInitalized) {
-      this.#error("EthersWalletConnector is already initialized.");
-    }
+    this.destroy();
 
     this.#shouldNetworkData = shouldNetworkData;
     this.#shouldWalletAddress = shouldWalletAddress;
     this.#execBeforeReconnect = execBeforeReconnect;
+
+    this.#isSetup = true;
+
+    return this;
+  }
+
+  async init(autoConnect = true)
+  {
+    if (! this.#isSetup) {
+      this.#error("You should setup EthersWalletConnector first.");
+    }
+
+    if (this.#isInitalized) {
+      this.#error("EthersWalletConnector is already initialized.");
+    }
+
     if (typeof autoConnect === 'function') {
       autoConnect = autoConnect();
     }
@@ -19341,19 +19356,20 @@ class EthersWalletConnector extends EventEmitter
 
       this.#browserProvider.on('chainChanged', async () => {
         const isCorrectNetwork = await this.#detectNetwork();
-        this.emit('networkSwitched', isCorrectNetwork);
+        this.emit('networkSwitched', isCorrectNetwork, this.#shouldNetworkData.chain_name);
       });
 
       this.#isInitalized = true;
       this.emit('walletConnectorInitialized');
     } else {
-      this.emit('browserProviderNotFound');
-      this.#error("You should install MetaMask.");
+      this.emit('walletProviderNotFound');
+      this.#error("Wallet provider not found.");
     }
   }
 
   destroy()
   {
+    this.#isSetup = false;
     this.#shouldNetworkData = undefined;
     this.#shouldWalletAddress = undefined;
     this.#isInitalized = false;
@@ -19391,7 +19407,8 @@ class EthersWalletConnector extends EventEmitter
     if (! Array.isArray(accounts)) accounts = [];
 
     let tryConnectCount = 0;
-    const reconnect = async (failEventName = 'failedToConnectWallet') => {
+
+    const reconnect = async (failEventName = 'failedToConnectWallet', ...failEventArgs) => {
       if (tryConnectCount > 0) {
         let shouldRetry = true;
 
@@ -19406,7 +19423,7 @@ class EthersWalletConnector extends EventEmitter
         }
 
         if (! shouldRetry) {
-          this.emit(failEventName);
+          this.emit(failEventName, ...failEventArgs);
           accounts = null;
           return false;
         }
@@ -19427,7 +19444,7 @@ class EthersWalletConnector extends EventEmitter
     if (isCorrectNetwork) {
       if (this.#shouldWalletAddress !== null) {
         while (! accounts.map((account) => account.toUpperCase()).includes(this.#shouldWalletAddress.toUpperCase())) {
-          if (! await reconnect('invalidWallet')) break;
+          if (! await reconnect('invalidWallet', this.#shouldWalletAddress)) break;
         }
       } else {
         while (accounts.length <= 0) {
