@@ -1,3 +1,7 @@
+[![npm (tag)](https://img.shields.io/npm/v/ethers-wallet-connector)](https://www.npmjs.com/package/ethers-wallet-connector)
+![npm bundle size (version)](https://img.shields.io/bundlephobia/minzip/ethers-wallet-connector)
+![npm (downloads)](https://img.shields.io/npm/dm/ethers-wallet-connector)
+
 # Ethers Wallet Connector
 
 A powerful and flexible wallet connection library for Ethereum-based applications, built on top of ethers.js. This library provides an easy way to connect to various Ethereum wallets (like MetaMask) and handle wallet-related events.
