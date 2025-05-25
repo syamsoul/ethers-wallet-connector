@@ -8,8 +8,7 @@ A powerful and flexible wallet connection library for Ethereum-based application
 - 🔄 Automatic network switching
 - 🎯 Wallet address validation
 - 🔔 Event-based architecture
-- 🛡️ Type-safe implementation
-- 🌐 Method-chaining support
+- 📝 Contract interactions (call/send contract functions)
 
 ## Installation
 
@@ -150,11 +149,7 @@ walletConnector.on('networkSwitched', (isCorrectNetwork, validNetworkName) => {
 walletConnector.init(autoConnectAfterInit);
 ```
 
-## Method-chaining support
-
-The library provides a fluent interface through method chaining, allowing you to configure and initialize the wallet connector in a clean, readable way. This approach enables you to chain multiple event listeners and configuration methods in a single statement, making your code more concise and maintainable.
-
-### Example
+or you can initialize through method chaining
 
 ```typescript
 EthersWalletConnector.setup(network, walletAddress, beforeReconnectCallback)
@@ -184,9 +179,71 @@ EthersWalletConnector.setup(network, walletAddress, beforeReconnectCallback)
 .init(autoConnectAfterInit);
 ```
 
+## Contract Interactions
+
+The library provides a simple way to interact with smart contracts. You can easily read contract data (call) and send transactions (send) to the blockchain.
+
+### Reading Contract Data (Call)
+
+To read data from a contract, use the `call` method. This is a read-only operation that doesn't require gas fees.
+
+```typescript
+import UsdtContractAbi from './contract-abi/usdt.json';
+
+// Contract address on BSC Mainnet
+const usdtContractAddress = '0x55d398326f99059ff775485246999027b3197955';
+
+// Initialize contract instance
+const usdtContract = await EthersWalletConnector.contract(usdtContractAddress, UsdtContractAbi);
+
+// Read USDT balance
+const balance = await usdtContract.call('balanceOf', [
+    EthersWalletConnector.account()
+]);
+console.log('USDT Balance:', balance.toString());
+```
+
+### Send Transaction (Send)
+
+To send a transaction to the blockchain, use the `send` method. This will prompt the user to approve the transaction in their wallet.
+
+```typescript
+import UsdtContractAbi from './contract-abi/usdt.json';
+import { parseEther } from "ethers";
+
+// Contract address on BSC Mainnet
+const usdtContractAddress = '0x55d398326f99059ff775485246999027b3197955';
+    
+// Initialize contract instance
+const usdtContract = await EthersWalletConnector.contract(usdtContractAddress, UsdtContractAbi);
+
+const receiverAddress = '0x364d8eA5E7a4ce97e89f7b2cb7198d6d5DFe0aCe';
+const amount = 125;
+
+// Send 125 USDT to the receiver address
+const result = await usdtContract.send('transfer', [
+    receiverAddress,
+    parseEther(amount.toString()),
+]);
+
+// Check transaction status
+if (typeof result?.hash !== 'undefined') {
+    console.log('Transaction successful:', result.hash);
+} else {
+    console.error('Transaction failed');
+}
+
+// Log full transaction result
+console.log(result);
+```
+
+The `send` method returns a transaction object that includes:
+- `hash`: The transaction hash (if successful)
+- Other transaction details like gas used, block number, etc.
+
 ## Supported Wallet Providers
 
-Currently, this library supports MetaMask as the primary wallet provider. Maybe in future we will expanding support to include other popular wallet providers such as Coinbase Wallet, and more in future releases.
+Currently, this library supports MetaMask as the primary wallet provider. Maybe in future we will expanding support to include other popular wallet providers such as Coinbase Wallet and more in future releases.
 
 - MetaMask
 

@@ -260,22 +260,20 @@ class EthersWalletConnector extends EventEmitter
     return this.isCorrectNetwork();
   }
 
-  async contract(contractAddress, ABI, isSigner = false)
+  async contract(contractAddress, ABI)
   {
     if (! this.isWalletConnected()) {
       await this.connectWallet();
     }
 
-    let contract;
-
-    if (isSigner) contract = (this.#signerContract[contractAddress] ??= new Contract(contractAddress, ABI, this.#signer));
-    else contract = (this.#providerContract[contractAddress] ??= new Contract(contractAddress, ABI, this.#provider));
+    let contractCaller = (this.#providerContract[contractAddress] ??= new Contract(contractAddress, ABI, this.#provider));
+    let contractSigner = (this.#signerContract[contractAddress] ??= new Contract(contractAddress, ABI, this.#signer));
 
     return new (function () {
 
       this.call = async function (methodName, methodParams = [], callParams = {}, onError = null) { 
         try {
-          return await contract[methodName](...methodParams, callParams);
+          return await contractCaller[methodName](...methodParams, callParams);
         } catch (e) {
           if (typeof onError === 'function') return (onError(e) ?? null);
           else console.log(e); //TODO: should erase this on production
@@ -286,7 +284,7 @@ class EthersWalletConnector extends EventEmitter
 
       this.send = async function (methodName, methodParams = [], sendParams = {}) {
         try {
-          const txn = await contract[methodName](...methodParams, sendParams);
+          const txn = await contractSigner[methodName](...methodParams, sendParams);
 
           const receipt = await txn.wait();
 

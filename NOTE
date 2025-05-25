@@ -1,0 +1,2 @@
+To run npm command:
+- docker run -it --rm -v $(pwd):/var/ethers-wallet-connector -w /var/ethers-wallet-connector node:22-alpine sh -c "npm <COMMAND>"
