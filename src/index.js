@@ -97,6 +97,8 @@ class EthersWalletConnector extends EventEmitter
 
   async connectWallet(forceNewConnect = false)
   {
+    if (! this.#checkIfAllowed()) return undefined;
+
     const isCorrectNetwork = await this.#detectNetwork(true);
     if (!isCorrectNetwork) {
       return undefined;
@@ -177,10 +179,52 @@ class EthersWalletConnector extends EventEmitter
 
   async disconnectWallet()
   {
+    if (! this.#checkIfAllowed()) return;
+
     if (this.isWalletConnected()) {
       this.#account = undefined;
       this.emit('walletDisconnected');
     }
+  }
+
+  async contract(contractAddress, ABI)
+  {
+    if (! this.#checkIfAllowed()) return;
+
+    if (! this.isWalletConnected()) {
+      await this.connectWallet();
+    }
+
+    let contractCaller = (this.#providerContract[contractAddress] ??= new Contract(contractAddress, ABI, this.#provider));
+    let contractSigner = (this.#signerContract[contractAddress] ??= new Contract(contractAddress, ABI, this.#signer));
+
+    return new (function () {
+
+      this.call = async function (methodName, methodParams = [], callParams = {}, onError = null) { 
+        try {
+          return await contractCaller[methodName](...methodParams, callParams);
+        } catch (e) {
+          if (typeof onError === 'function') return (onError(e) ?? null);
+          else console.log(e); //TODO: should erase this on production
+        }
+
+        return null;
+      };
+
+      this.send = async function (methodName, methodParams = [], sendParams = {}) {
+        try {
+          const txn = await contractSigner[methodName](...methodParams, sendParams);
+
+          const receipt = await txn.wait();
+
+          return receipt;
+        } catch (e) {
+          console.log(e); //TODO: should erase this on production
+          return e?.info?.error ?? (e?.innerError ?? e);
+        }
+      };
+
+    })();
   }
 
   async #getCurrentAccounts()
@@ -260,44 +304,6 @@ class EthersWalletConnector extends EventEmitter
     return this.isCorrectNetwork();
   }
 
-  async contract(contractAddress, ABI)
-  {
-    if (! this.isWalletConnected()) {
-      await this.connectWallet();
-    }
-
-    let contractCaller = (this.#providerContract[contractAddress] ??= new Contract(contractAddress, ABI, this.#provider));
-    let contractSigner = (this.#signerContract[contractAddress] ??= new Contract(contractAddress, ABI, this.#signer));
-
-    return new (function () {
-
-      this.call = async function (methodName, methodParams = [], callParams = {}, onError = null) { 
-        try {
-          return await contractCaller[methodName](...methodParams, callParams);
-        } catch (e) {
-          if (typeof onError === 'function') return (onError(e) ?? null);
-          else console.log(e); //TODO: should erase this on production
-        }
-
-        return null;
-      };
-
-      this.send = async function (methodName, methodParams = [], sendParams = {}) {
-        try {
-          const txn = await contractSigner[methodName](...methodParams, sendParams);
-
-          const receipt = await txn.wait();
-
-          return receipt;
-        } catch (e) {
-          console.log(e); //TODO: should erase this on production
-          return e?.info?.error ?? (e?.innerError ?? e);
-        }
-      };
-
-    })();
-  }
-
   #checkShouldNetworkDataIsCorrect()
   {
     if (this.#shouldNetworkData === undefined || this.#shouldNetworkData === null) {
@@ -309,6 +315,17 @@ class EthersWalletConnector extends EventEmitter
     requiredOptions.forEach((option) => {
       if (this.#shouldNetworkData[option] === undefined) this.#error(`'${option}' option is required in 'shouldNetworkData'.`);
     });
+  }
+
+  #checkIfAllowed()
+  {
+    if (! this.#browserProvider) {
+      this.emit('walletProviderNotFound');
+      this.#error("Wallet provider not found.");
+      return false;
+    }
+
+    return true;
   }
 
   #error(message)
