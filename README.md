@@ -207,6 +207,18 @@ const balance = await usdtContract.call('balanceOf', [
 console.log('USDT Balance:', balance.toString());
 ```
 
+Or for some Call Functions that need signed transaction, you can use `signedCall`.
+
+Example:
+
+```typescript
+const usdtContract = await EthersWalletConnector.contract(usdtContractAddress, UsdtContractAbi);
+
+// Read USDT balance
+const myClaimableToken = await usdtContract.signedCall('myClaimableView');
+console.log('You can claim:', myClaimableToken.toString());
+```
+
 ### Send Transaction (Send)
 
 To send a transaction to the blockchain, use the `send` method. This will prompt the user to approve the transaction in their wallet.

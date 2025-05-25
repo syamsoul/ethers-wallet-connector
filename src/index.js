@@ -211,6 +211,17 @@ class EthersWalletConnector extends EventEmitter
         return null;
       };
 
+      this.signedCall = async function (methodName, methodParams = [], callParams = {}, onError = null) { 
+        try {
+          return await contractSigner[methodName](...methodParams, callParams);
+        } catch (e) {
+          if (typeof onError === 'function') return (onError(e) ?? null);
+          else console.log(e); //TODO: should erase this on production
+        }
+
+        return null;
+      };
+
       this.send = async function (methodName, methodParams = [], sendParams = {}) {
         try {
           const txn = await contractSigner[methodName](...methodParams, sendParams);
