@@ -14,6 +14,25 @@ A powerful and flexible wallet connection library for Ethereum-based application
 - 🔔 Event-based architecture
 - 📝 Contract interactions (call/send contract functions)
 
+## Documentation
+
+* [Installation](#installation)
+* [Quick Start](#quick-start)
+* [Configuration](#configuration)
+  * [Network Configuration](#network-configuration)
+  * [Wallet Address Validation](#wallet-address-validation)
+  * [Reconnect Callback](#reconnection-confirmation-callback)
+  * [Auto Connect](#automatic-connection-on-initialization)
+* [Events](#events)
+* [Contract Interactions](#contract-interactions)
+  * [Call (Read)](#reading-contract-data-call)
+  * [Send (Write)](#send-transaction-send)
+* [Supported Wallet Providers](#supported-wallet-providers)
+* [Contributions](#support-me)
+
+&nbsp;
+&nbsp;
+
 ## Installation
 
 ```bash
@@ -212,9 +231,6 @@ Or for some Call Functions that need signed transaction, you can use `signedCall
 Example:
 
 ```typescript
-const usdtContract = await EthersWalletConnector.contract(usdtContractAddress, UsdtContractAbi);
-
-// Read USDT balance
 const myClaimableToken = await usdtContract.signedCall('myClaimableView');
 console.log('You can claim:', myClaimableToken.toString());
 ```
