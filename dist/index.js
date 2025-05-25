@@ -19470,8 +19470,21 @@ class EthersWalletConnector extends EventEmitter
     if (! this.#checkIfAllowed()) return;
 
     if (this.isWalletConnected()) {
-      this.#account = undefined;
-      this.emit('walletDisconnected');
+      try {
+        await this.#browserProvider.request({
+          method: 'wallet_revokePermissions',
+          params: [
+            {
+              "eth_accounts": {}
+            }
+          ]
+        });
+
+        this.#account = undefined;
+        this.emit('walletDisconnected');
+      } catch (e) {
+        return false;
+      }
     }
   }
 
