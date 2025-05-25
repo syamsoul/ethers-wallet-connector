@@ -122,6 +122,18 @@ This is useful for:
 - Controlling the initial connection behavior
 - Implementing custom connection flows
 
+### Manual Wallet Connection
+
+When `autoConnectAfterInit` is set to `false`, you'll need to manually connect and disconnect the wallet using the following methods:
+
+```typescript
+// Connect to wallet
+await EthersWalletConnector.connectWallet();
+
+// Disconnect from wallet
+await EthersWalletConnector.disconnectWallet();
+```
+
 ## Events
 
 The library provides several events that you can listen to:
