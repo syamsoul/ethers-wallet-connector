@@ -212,6 +212,7 @@ To read data from a contract, use the `call` method. This is a read-only operati
 
 ```typescript
 import UsdtContractAbi from './contract-abi/usdt.json';
+import { formatEther } from "ethers";
 
 // Contract address on BSC Mainnet
 const usdtContractAddress = '0x55d398326f99059ff775485246999027b3197955';
@@ -223,7 +224,7 @@ const usdtContract = await EthersWalletConnector.contract(usdtContractAddress, U
 const balance = await usdtContract.call('balanceOf', [
     EthersWalletConnector.account()
 ]);
-console.log('USDT Balance:', balance.toString());
+console.log('USDT Balance:', formatEther(balance));
 ```
 
 Or for some Call Functions that need signed transaction, you can use `signedCall`.
@@ -232,7 +233,7 @@ Example:
 
 ```typescript
 const myClaimableToken = await usdtContract.signedCall('myClaimableView');
-console.log('You can claim:', myClaimableToken.toString());
+console.log('You can claim:', formatEther(myClaimableToken));
 ```
 
 ### Send Transaction (Send)
