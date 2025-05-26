@@ -93,6 +93,8 @@ class EthersWalletConnector extends EventEmitter
     this.#execBeforeReconnect = undefined;
     this.#signerContract = {};
     this.#providerContract = {};
+
+    return this;
   }
 
   async connectWallet(forceNewConnect = false)
