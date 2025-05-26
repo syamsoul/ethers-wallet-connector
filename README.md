@@ -14,6 +14,14 @@ A powerful and flexible wallet connection library for Ethereum-based application
 - 🔔 Event-based architecture
 - 📝 Contract interactions (call/send contract functions)
 
+## Try it Out
+
+Check out [our interactive playground](https://info.souldoit.com/testing/ethers-wallet-connector) where you can:
+- Test wallet connections
+- Try out different configurations
+- See live examples of the library in action
+- Experiment with contract interactions
+
 ## Documentation
 
 * [Installation](#installation)
