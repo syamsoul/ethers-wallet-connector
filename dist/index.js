@@ -19351,8 +19351,7 @@ class EthersWalletConnector extends EventEmitter
     if (this.#browserProvider) {
       this.#provider = new BrowserProvider(this.#browserProvider);
 
-      if (autoConnect) await this.connectWallet();
-      else await this.#detectNetwork(true);
+      if (! autoConnect) await this.#detectNetwork(true);
 
       this.#browserProvider.on('chainChanged', async () => {
         const isCorrectNetwork = await this.#detectNetwork();
@@ -19361,6 +19360,8 @@ class EthersWalletConnector extends EventEmitter
 
       this.#isInitalized = true;
       this.emit('walletConnectorInitialized');
+
+      if (autoConnect) await this.connectWallet();
     } else {
       this.emit('walletProviderNotFound');
       this.#error("Wallet provider not found.");
