@@ -152,6 +152,8 @@ The library provides several events that you can listen to:
 - `walletConnected`: Triggered when a wallet is successfully connected
 - `walletDisconnected`: Triggered when the wallet is disconnected
 - `failedToConnectWallet`: Triggered when wallet connection fails
+- `failedToAddNetwork`: Triggered when adding a new network fails
+- `failedToSwitchNetwork`: Triggered when switching networks fails
 - `invalidWallet`: Triggered when an invalid wallet address is used
 - `networkSwitched`: Triggered when the network is switched
 
@@ -178,6 +180,14 @@ walletConnector.on('walletDisconnected', () => {
 
 walletConnector.on('failedToConnectWallet', () => {
   alert('failed to connect to a wallet');
+});
+
+walletConnector.on('failedToAddNetwork', () => {
+  alert(`failed to add network`);
+});
+
+walletConnector.on('failedToSwitchNetwork', () => {
+  alert(`failed to switch network`);
 });
 
 walletConnector.on('invalidWallet', (validAccount) => {

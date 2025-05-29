@@ -103,6 +103,7 @@ class EthersWalletConnector extends EventEmitter
     if (! this.#checkIfAllowed()) return undefined;
 
     const isCorrectNetwork = await this.#detectNetwork(true);
+
     if (!isCorrectNetwork) {
       return undefined;
     }
@@ -316,19 +317,45 @@ class EthersWalletConnector extends EventEmitter
 
     if ((this.#shouldNetworkData.block_explorer_url ?? '') !== '') params[0].blockExplorerUrls = [this.#shouldNetworkData.block_explorer_url];
 
+    let isAddingNewNetwork = false;
     try {
       await this.#browserProvider.request({
-        method: "wallet_addEthereumChain",
-        params, 
+          method: "wallet_switchEthereumChain",
+          params: [{chainId: toBeHex(this.#shouldNetworkData.chain_id)}], 
       })
     } catch (e) {
-      this.emit('failedToAddnetwork');
-      return false;
+      if (e.code === 4902) {
+        isAddingNewNetwork = true;
+        try {
+          await this.#browserProvider.request({
+            method: "wallet_addEthereumChain",
+            params, 
+          })
+        } catch (e) {
+          // e.code === 4001 user rejected
+          if (e.code !== -32603) { //unknown error, just bypass this error
+            this.emit('failedToAddNetwork');
+            return false;
+          }
+        }
+      } else {
+        this.emit('failedToSwitchNetwork');
+        return false;
+      }
     }
 
+    const previousChainId = this.#currentChainId;
     this.#currentChainId = toNumber(await this.#browserProvider.request({ method: 'eth_chainId' }));
 
-    return this.isCorrectNetwork();
+    const isCorrectNetwork = this.isCorrectNetwork();
+
+    if (!isAddingNewNetwork) {
+      if (previousChainId !== this.#currentChainId) {
+        this.emit('networkSwitched', isCorrectNetwork, this.#shouldNetworkData.chain_name);
+      }
+    }
+
+    return isCorrectNetwork;
   }
 
   #checkShouldNetworkDataIsCorrect()
