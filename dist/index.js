@@ -19353,17 +19353,17 @@ class EthersWalletConnector extends EventEmitter
 
       if (! autoConnect) await this.#detectNetwork(true);
 
+      this.#isInitalized = true;
+      this.emit('walletConnectorInitialized');
+
+      if (autoConnect) await this.connectWallet();
+
       setTimeout(() => {
         this.#browserProvider.on('chainChanged', async () => {
           const isCorrectNetwork = await this.#detectNetwork();
           this.emit('networkSwitched', isCorrectNetwork, this.#shouldNetworkData.chain_name);
         });
-      }, 400);
-
-      this.#isInitalized = true;
-      this.emit('walletConnectorInitialized');
-
-      if (autoConnect) await this.connectWallet();
+      }, 1000);
     } else {
       this.emit('walletProviderNotFound');
       this.#error("Wallet provider not found.");
@@ -19606,8 +19606,6 @@ class EthersWalletConnector extends EventEmitter
     ];
 
     if ((this.#shouldNetworkData.block_explorer_url ?? '') !== '') params[0].blockExplorerUrls = [this.#shouldNetworkData.block_explorer_url];
-
-    let isAddingNewNetwork = false;
     try {
       await this.#browserProvider.request({
           method: "wallet_switchEthereumChain",
@@ -19615,7 +19613,6 @@ class EthersWalletConnector extends EventEmitter
       });
     } catch (e) {
       if (e.code === 4902) {
-        isAddingNewNetwork = true;
         try {
           await this.#browserProvider.request({
             method: "wallet_addEthereumChain",
@@ -19639,10 +19636,8 @@ class EthersWalletConnector extends EventEmitter
 
     const isCorrectNetwork = this.isCorrectNetwork();
 
-    if (!isAddingNewNetwork) {
-      if (previousChainId !== this.#currentChainId) {
-        this.emit('networkSwitched', isCorrectNetwork, this.#shouldNetworkData.chain_name);
-      }
+    if (previousChainId !== this.#currentChainId) {
+      this.emit('networkSwitched', isCorrectNetwork, this.#shouldNetworkData.chain_name);
     }
 
     return isCorrectNetwork;
