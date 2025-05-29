@@ -19353,10 +19353,12 @@ class EthersWalletConnector extends EventEmitter
 
       if (! autoConnect) await this.#detectNetwork(true);
 
-      this.#browserProvider.on('chainChanged', async () => {
-        const isCorrectNetwork = await this.#detectNetwork();
-        this.emit('networkSwitched', isCorrectNetwork, this.#shouldNetworkData.chain_name);
-      });
+      setTimeout(() => {
+        this.#browserProvider.on('chainChanged', async () => {
+          const isCorrectNetwork = await this.#detectNetwork();
+          this.emit('networkSwitched', isCorrectNetwork, this.#shouldNetworkData.chain_name);
+        });
+      }, 400);
 
       this.#isInitalized = true;
       this.emit('walletConnectorInitialized');
