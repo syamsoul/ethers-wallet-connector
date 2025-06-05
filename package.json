@@ -1,6 +1,6 @@
 {
   "name": "ethers-wallet-connector",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "type": "module",
   "main": "dist/index.js",
   "module": "src/index.js",
@@ -14,7 +14,8 @@
   "keywords": ["ethers", "web3", "blockchain","wallet", "connector"],
   "dependencies": {
     "ethers": "^6.14.0",
-    "@metamask/detect-provider": "^2.0.0"
+    "@metamask/detect-provider": "^2.0.0",
+    "events": "^3.3.0"
   },
   "devDependencies": {
     "rollup": "^3.0.0",
