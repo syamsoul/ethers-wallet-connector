@@ -285,20 +285,31 @@ const receiverAddress = '0x364d8eA5E7a4ce97e89f7b2cb7198d6d5DFe0aCe';
 const amount = 125;
 
 // Send 125 USDT to the receiver address
-const result = await usdtContract.send('transfer', [
+const txn = await usdtContract.send('transfer', [
     receiverAddress,
     parseEther(amount.toString()),
 ]);
 
-// Check transaction status
-if (typeof result?.hash !== 'undefined') {
-    console.log('Transaction successful:', result.hash);
+if (! txn.success) {
+    console.log('Transaction failed (1):', txn.error.message);
+    return;
 } else {
-    console.error('Transaction failed');
-}
+  // Just start processing
+  console.log('Processing transaction:', txn.data.hash);
 
-// Log full transaction result
-console.log(result);
+  // Wait until the transaction finish
+  const result = await txn.waitForFinish();
+
+  // Check transaction status
+  if (! result.success) {
+      console.log('Transaction failed (2):', result.error.message);
+  } else {
+      console.log('Transaction successful:', result.data.hash);
+  }
+
+  // Log full transaction result
+  console.log(result);
+}
 ```
 
 The `send` method returns a transaction object that includes:

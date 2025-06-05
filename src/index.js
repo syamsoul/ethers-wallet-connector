@@ -224,7 +224,7 @@ class EthersWalletConnector extends EventEmitter
           return await contractCaller[methodName](...methodParams, callParams);
         } catch (e) {
           if (typeof onError === 'function') return (onError(e) ?? null);
-          else console.log(e); //TODO: should erase this on production
+          // else console.log(e); //TODO: should erase this on production
         }
 
         return null;
@@ -235,7 +235,7 @@ class EthersWalletConnector extends EventEmitter
           return await contractSigner[methodName](...methodParams, callParams);
         } catch (e) {
           if (typeof onError === 'function') return (onError(e) ?? null);
-          else console.log(e); //TODO: should erase this on production
+          // else console.log(e); //TODO: should erase this on production
         }
 
         return null;
@@ -245,12 +245,32 @@ class EthersWalletConnector extends EventEmitter
         try {
           const txn = await contractSigner[methodName](...methodParams, sendParams);
 
-          const receipt = await txn.wait();
+          return {
+            success: true,
+            data: txn,
+            waitForFinish: async function () {
+              try {
+                const receipt = await txn.wait();
 
-          return receipt;
+                return {
+                  success: true,
+                  data: receipt,
+                };
+              } catch (e) {
+                // console.log(e); //TODO: should erase this on production
+                return {
+                  success: false,
+                  error: e?.info?.error ?? (e?.innerError ?? e),
+                };
+              }
+            }
+          };
         } catch (e) {
-          console.log(e); //TODO: should erase this on production
-          return e?.info?.error ?? (e?.innerError ?? e);
+          // console.log(e); //TODO: should erase this on production
+          return {
+            success: false,
+            error: e?.info?.error ?? (e?.innerError ?? e),
+          };
         }
       };
 
