@@ -63,7 +63,7 @@ class EthersWalletConnector extends EventEmitter
     if (this.#browserProvider) {
       this.#provider = new BrowserProvider(this.#browserProvider);
 
-      if (! autoConnect) await this.#detectNetwork(true);
+      await this.#detectNetwork(true);
 
       this.#isInitalized = true;
       this.emit('walletConnectorInitialized');
