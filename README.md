@@ -292,7 +292,6 @@ const txn = await usdtContract.send('transfer', [
 
 if (! txn.success) {
     console.log('Transaction failed (1):', txn.error.message);
-    return;
 } else {
   // Just start processing
   console.log('Processing transaction:', txn.data.hash);
